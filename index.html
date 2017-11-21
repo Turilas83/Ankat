@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+	<meta http-equiv="Content-Security-Policy" content="
+			default-src 'self' 'unsafe-inline' ws://10.3.124.233:3000/ http://code.jquery.com https://code.jquery.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
+	" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+	<script src="https://code.jquery.com/jquery-2.1.4.js" integrity="sha256-siFczlgw4jULnUICcdm9gjQPZkw/YPDqhQ9+nAOScE4="	crossorigin="anonymous"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+   <link rel="stylesheet" type="text/css" href="css/index.css">
+	<title>Mobiiliohjelmointi</title>
+</head>
+<body>
+	<div data-role="popup" id="popupMenu" data-transition="pop" data-theme="a">
+		<ul data-role="listview">
+			<li><a href="#etusivu" id="etuSivuLinkki">Etusivu</a></li>			
+			<li><a href="#lista" id="listaLinkki">Lista</a></li>
+			<li><a href="#ohje" id="ohjeLinkki">Ohje</a></li>
+		</ul>
+	</div>
+		
+	<div data-role="page" id="kirjautuminen">
+		<div data-role="header">
+			<a href="#popupMenu" data-rel="popup" data-transition="flip" class="ui-btn ui-btn-inline  ui-corner-all ui-icon-bars ui-btn-icon-notext">Menu</a>
+			<h1>Kirjautuminen</h1>
+		</div>
+         
+		<div data-role="main" class="ui-content ui-body-a">
+			<div id="paiva"></div> 
+			<p>
+			<label for="name">Nimi:</label>
+			<input type="text" name="name" id="name">
+			</p>
+			<p>
+			
+			<label for="pwd">Salasana:</label>
+			
+			<input type="password" name="pwd" id="pwd">
+			</p>	
+			<p>
+			<button class="ui-btn ui-btn-inline ui-corner-all" id="login">Kirjaudu</button>
+			</p>
+		</div>
+
+		<div data-role="footer">
+			<h1>Ankkasovellus</h1>
+		</div>
+	</div>
+		
+	<div data-role="page" id="addDuck">
+		<div data-role="header">
+			<a href="#popupMenu" data-rel="popup" data-transition="flip" class="ui-btn ui-btn-inline  ui-corner-all ui-icon-bars ui-btn-icon-notext">Menu</a>
+			<h1>Havainto</h1>
+		</div>         
+		<div data-role="main" class="ui-content ui-body-a">	
+		 <p>
+			<label for="nimi">Nimi:</label>
+			<input type="text" name="nimi" id="nimi">
+		</p>
+		<p>
+			<label for="slider">JQM kiinnostus:</label>
+			<input type="range" name="slider" id="slider" min="0" max="100" value="50" step="5">
+		</p>	
+		<hr>
+		<p>
+			<button class="ui-btn ui-btn-inline ui-corner-all" id="lisaa">Lisää nimi listaan</button>
+			<button class="ui-btn ui-btn-inline ui-corner-all" id="tyhjennaLista" disabled>Tyhjennä lista</button>
+		</p>
+		<hr>
+		<p>
+			<ul data-role="listview" id="nimiLista" data-inset="true"></ul>
+		</p>
+   		</div>
+		<div data-role="popup" id="popup_vahvistus">
+			<div data-role="content">
+				<h3 id="poistoTxt"></h3>				
+				<a class="ui-btn ui-corner-all" data-rel="back">Peruuta</a>
+				<a class="ui-btn ui-corner-all" id="vahvistaPoisto" >Vahvista</a>
+			</div>
+		</div>
+		<div data-role="footer">
+			<h1>Mobiiliohjelmointi</h1>
+		</div>
+	</div>
+	
+	<div data-role="page" id="ohje">
+		<div data-role="header">
+			<a href="#popupMenu" data-rel="popup" data-transition="flip" class="ui-btn ui-btn-inline  ui-corner-all ui-icon-bars ui-btn-icon-notext">Menu</a>
+			<h1>Ohje</h1>
+		</div>         
+		<div data-role="main" class="ui-content ui-body-a">	
+			<p>Tässä erinäisiä ohjeita...</p>
+		</div>
+		<div data-role="footer">
+			<h1>Mobiiliohjelmointi</h1>
+		</div>
+	</div>
+	
+	<script>
+		$(document).one("pagebeforecreate", function () { //Ennen minkä tahansa sivun luomista, tehdään kerran (.one)	
+			$("#popupMenu").enhanceWithin().popup();
+		});
+		
+		$(document).on("pagecreate", "#kirjautuminen", function() { 	//Sivun luonti, tehdään kerran
+					$("#paiva").text(haePaiva());
+		});
+		
+		$(document).on("pagecreate", "#lista", function() {		//Sivun luonti, tehdään kerran
+
+		});
+		
+		$(document).on("pagecreate", "#ohje", function() { 	//Sivun luonti, tehdään kerran
+
+		});
+		
+		$(document).on("pagecontainerbeforeshow", function( event, ui ) {	//Ennen minkä tahansa sivun näyttämistä. (pagebeforeshow is deprecated)	
+			var toPage = ui.toPage[0].id; //Mille sivulle ollaan menossa, palauttaa sivun id:n
+			$("#etuSivuLinkki,#listaLinkki,#ohjeLinkki").show();
+			if(toPage=="etusivu"){
+				$("#paiva").css("color", "black");
+				$("#etuSivuLinkki").hide();
+			}else if(toPage=="lista"){
+				$("#listaLinkki").hide();
+			}else if(toPage=="ohje"){
+				$("#ohjeLinkki").hide();
+			}
+		});
+		
+		$(document).on("pagecontainershow", function( event, ui ) {	//Mikä tahansa sivu näytetään.	
+			var toPage = ui.toPage[0].id; //Mikä sivu on näytetty, palauttaa sivun id:n
+				
+		});
+		
+		$("#paiva").on("tap", function() {
+			$("#paiva").css("color", "green");
+		});
+		
+		$("#koodaaja").on("tap", function() {
+			$("#koodaaja").html("<h2>"+$("#koodaaja").text()+"</h2>");
+		});
+		
+		$("#lisaa").on("tap", function() {
+			var nimi = $("#nimi").val();
+			var pros = $("#slider").val();
+			if(nimi!=""){
+				$("#nimiLista").append("<li class='delete' data-icon='delete'><a href='#'>" + nimi + ", " + pros + "%</a></li>");
+				$("#nimiLista").listview("refresh");
+				$("#nimi").val("");
+				$("#slider").val(50);
+				$("#slider").slider("refresh");	
+				//$("#tyhjennaLista").attr("disabled", false);  //tai
+				$("#tyhjennaLista").prop("disabled", false);
+				
+			}
+		});
+		
+		$("#login").on("tap", function() {
+			var name = $("#name").val();
+			var pwd = $ ("#pwd").val();
+			if(name == "Mikko" && pwd == "okkim") {
+				window.location.href = "#lista";
+			} else {
+				alert("Tunnus tai salasana väärä!");
+			}
+		});
+		
+		$("#tyhjennaLista").on("tap", function() {
+			$("#nimiLista").empty();	
+			$("#tyhjennaLista").prop("disabled", true);			
+		});
+		
+		var poistettava;
+		$(document).on("tap", ".delete", function(event) {
+			poistettava = $(this);	//Palauttaa tapahtuman käynnistäneen objektin
+			//Objektin ominaisuuksien ja arvojen läpikäynti (ei tarvita tässä tapauksessa, vain esimerkkinä)
+			
+			var obj = $(this);  //.context -pääsee sisälle objektin arvoihin
+			for(var key in obj) {
+				console.log('key: ' + key + '\n' + 'value: ' + obj[key]);
+			}
+			
+			$("#poistoTxt").text("Vahvista poisto: " + poistettava.text().split(",")[0] + "?");
+			event.preventDefault(); //Chrome sulkee popupin heti (bugi?). Estetään seuraavan tapahtuman suorittaminen.
+			$("#popup_vahvistus").popup("open");			
+		});
+		
+		$("#vahvistaPoisto").on("tap", function() {
+			poistettava.remove();				
+			if ($("#nimiLista li").size() < 1) {
+				$("#tyhjennaLista").prop("disabled", true);	
+			}
+			$("#popup_vahvistus").popup("close");				
+		});
+		
+		function haePaiva(){
+			var dVal = new Date();
+			var d = dVal.getDate();
+			var m = dVal.getMonth()+1;
+			var y = dVal.getFullYear();
+			if(d<10){
+				d="0"+d;
+			}
+			if(m<10){
+				m="0"+m;
+			}
+			return d + "." + m + "." + y;
+ 		}
+	</script>
+</body>
+
+</html>
