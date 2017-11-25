@@ -1,2 +1,2 @@
 # Ankat
-PhoneGap
+PhoneGap sovellus. Harjoitustyö/ennakkotehtävä.
