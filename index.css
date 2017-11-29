@@ -61,16 +61,11 @@ body {
 }
 .ui-body-a {
 	background-color:#ffffcc;
-}
-.ui-bar-inherit {
+} */
+/*.ui-bar-inherit {
 	background-color:#ffbf8b;
-}
-.header {
-	background-color:yellow;
-}
-.div data-role {
-	background-color:yellow;
-}
+} */
+
 /* Portrait layout (default) */
 .app {
     background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
@@ -94,6 +89,12 @@ body {
                                       /* offset horizontal: half of image width and text area width  */
     }
 }
+
+#map {
+        height: 400px;
+        width: 100%;
+       }
+	   
 
 h1 {
     font-size:24px;
