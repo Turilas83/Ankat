@@ -6,9 +6,8 @@
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="msapplication-tap-highlight" content="no" />
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-	
 	<meta http-equiv="Content-Security-Policy" content="
-			default-src 'self' 'unsafe-inline' https://mts.googleapis.com https://maps.googleapis.com https://maps.gstatic.com ws://192.168.8.106:3000/ http://code.jquery.com https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
+			default-src 'self' 'unsafe-inline'  http://api.openweathermap.org https://mts.googleapis.com https://maps.googleapis.com https://maps.gstatic.com ws://192.168.43.199:3000/ http://code.jquery.com https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
 	" />
 	
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
@@ -73,16 +72,17 @@
       </p>
       <p>
         <label for="locationt">Sijainti:</label>
-			
+			<!-- <div id="saaVastaus">Säätä haetaan...</div> 	-->
+			<div id="mapKartta" style="height:300px"></div> 
       </p>
 		<hr>
 		<p>
-			<button class="ui-btn ui-btn-inline ui-corner-all" id="lisaa">Lisää nimi listaan</button>
-			<button class="ui-btn ui-btn-inline ui-corner-all" id="tyhjennaLista" disabled>Tyhjennä lista</button>
+			<button class="ui-btn ui-btn-inline ui-corner-all" id="add">Lisää ankka havainto listaan</button>
+			<button class="ui-btn ui-btn-inline ui-corner-all" id="emptyList" disabled>Tyhjennä lista</button>
 		</p>
 		<hr>
 		<p>
-			<ul data-role="listview" id="nimiLista" data-inset="true"></ul>
+			<ul data-role="listview" id="duckList" data-inset="true"></ul>
 		</p>
    		</div>
 		<div data-role="popup" id="popup_vahvistus">
@@ -109,7 +109,7 @@
 		</div>
 	</div>
 	<script type="text/javascript" src="cordova.js"></script> <!-- mahdollistaa laitteen ominaisuuksien käytön -->	
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnWUWYNgyyqDFtJdry3A2R_fpoTt1eT7Y&libraries=geometry"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnWUWYNgyyqDFtJdry3A2R_fpoTt1eT7Y"></script>
 	 <!--Opettajan api_key-->
 	<script>
 	
@@ -145,27 +145,122 @@
 				$("#ohjeLinkki").hide();
 			}
 		});
+			
+			//Laitetaan kaksi jarrua päälle. 
+		var laiteKesken = $.Deferred(); //jarru_1=True
+		var saaSivuKesken = $.Deferred(); //jarru_2=True	
 		
+		//Kun molemmat jarrut on avattu aloitamme laitteen koordinaattien etsimisen (Käytä Firefoxia)
+		$.when(laiteKesken, saaSivuKesken).done(saaSivuValmis);
+		
+		//Lisätään tapahtumankuuntelija tapahtumalle "onDeviceReady"
+		document.addEventListener("deviceReady", onDeviceReady, false);
+		function onDeviceReady() {			
+			laiteKesken.resolve();	//jarru_1=False				
+		}	
 		
 			$(document).on("pagecontainershow", function( event, ui ) {	//Mikä tahansa sivu näytetään.
 			var toPage = ui.toPage[0].id; //Mikä sivu on näytetty, palauttaa sivun id:n
-			
+			if(toPage=="addDuck"){
+				//haeSaa(60.17,24.94);				
+				saaSivuKesken.resolve(); //jarru_2=False
+			}	
 		});
 		
+		function saaSivuValmis() {
 		
-	
+			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
+			function onLocationSuccess(position) {				
+				//haeSaa(position.coords.latitude, position.coords.longitude);		
+				teeMap(position.coords.latitude, position.coords.longitude);					
+			}
+			function onLocationError() {				
+				console.log("Paikannus ei onnistu");
+			}
+		}
+		
+		/*function haeSaa(lat, lon) {
+			$.ajax(
+				{
+				url: "http://api.openweathermap.org/data/2.5/weather?lang=fi&lat=" + lat 
+				+ "&lon=" + lon +"&units=metric&APPID=14420295a6aaaebcf8ab02e2d2f6a670",
+				dataType: "json",
+				timeout: 5000
+				}
+			).done(function(data) 
+				{
+				var teksti = "<h3 style='margin-bottom:0em'>" +
+				"<img align='middle' src='http://api.openweathermap.org/img/w/" + data.weather[0].icon + "'>" + 
+				data.main.temp.toFixed(1) + "'C</h3>";	
+				teksti = teksti + "<p>" + data.weather[0].description + "</p>";
+				$("#saaVastaus").html(teksti);
+				}
+			).fail(function() 
+				{
+				$("#saaVastaus").html("Säätä ei pystytä hakemaan");
+				}
+			)
+		} */
+		function teeMap(lat, lon) {				
+			var paikka = new google.maps.LatLng(lat, lon);			
+			var myOptions = {
+				zoom:15,
+				center: paikka
+			};
+			var kartta = new google.maps.Map(document.getElementById("mapKartta"), myOptions);	//tai $("#mapKartta")[0], myOptions	
+			var marker = new google.maps.Marker({
+				position: paikka,
+				map: kartta,
+				title: "Olet tässä"
+			})				
+		}
+		
+	/*	document.addEventListener("deviceready", onDeviceReady, false);
 
-		$("#lisaa").on("tap", function() {
-			var nimi = $("#nimi").val();
-			var pros = $("#slider").val();
-			if(nimi!=""){
-				$("#nimiLista").append("<li class='delete' data-icon='delete'><a href='#'>" + nimi + ", " + pros + "%</a></li>");
-				$("#nimiLista").listview("refresh");
-				$("#nimi").val("");
-				$("#slider").val(50);
-				$("#slider").slider("refresh");
+function onDeviceReady() {
+    console.log("device ready");
+    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    getPosition();
+}
+		
+		function saaSivuValmis() {
+		
+			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
+			function onLocationSuccess(position) {				
+				haeSaa(position.coords.latitude, position.coords.longitude);		
+				teeMap(position.coords.latitude, position.coords.longitude);					
+			}
+			function onLocationError() {				
+				console.log("Paikannus ei onnistu");
+			}
+		} */
+		
+		/*function initMap() {
+        var uluru = {lat: -25.363, lng: 131.044};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+      } */
+
+		$("#add").on("tap", function() {
+			var species = $("#species").val();
+			var description = $("#description").val();
+			var paiva = $("#paiva").val();
+			var count = $("#count").val();
+			if(species!=""){
+				$("#duckList").append("<li class='delete' data-icon='delete'><a href='#'>" + species + ", " + description + ", " + paiva + ", " + count +" </a></li>");
+				$("#duckList").listview("refresh");
+				$("#species").val("");
+				$("#description").val("");
+				$("#paiva").val("");
+				$("#count").val("");
 				//$("#tyhjennaLista").attr("disabled", false);  //tai
-				$("#tyhjennaLista").prop("disabled", false);
+				$("#emptyList").prop("disabled", false);
 
 			}
 		});
@@ -178,11 +273,40 @@
 				alert("Tunnus tai salasana väärä!").css("color", "red");
 			}
 		});
-		
+	/*	var paikka;
+		function teeMap(lat, lon) {				
+			paikka = new google.maps.LatLng(lat, lon);	
+			
+			var myOptions = {
+				zoom:8,
+				center: paikka //{lat: lat, lng: lon} //tai center: paikka
+			};
+			
+			var kartta = new google.maps.Map(document.getElementById("mapKartta"), myOptions);	//tai $("#mapKartta")[0], myOptions	
+			
+			var infoWindow = new google.maps.InfoWindow;
+			infoWindow.setPosition(paikka);
+            infoWindow.setContent('Olet tässä.');
+            infoWindow.open(kartta);
+			
+			var markers = locations.map(function(location, i) {
+				return new google.maps.Marker({
+					position: location,
+					map: kartta,
+					title: "paikka_"+i,	
+					label: laskeEtaisyys(new google.maps.LatLng(location)) + " km"
+					});				
+			});				
+		}
+		function laskeEtaisyys(kohde){ //muista lisätä maps.googleapis -linkin perään &libraries=geometry
+			var etaisyys = google.maps.geometry.spherical.computeDistanceBetween(paikka, kohde);
+			return (etaisyys/1000).toFixed(1);		
+		}
+		*/
 
-		$("#tyhjennaLista").on("tap", function() {
-			$("#nimiLista").empty();
-			$("#tyhjennaLista").prop("disabled", true);
+		$("#emptyList").on("tap", function() {
+			$("#duckList").empty();
+			$("#emptyList").prop("disabled", true);
 		});
 
 		var poistettava;
@@ -202,8 +326,8 @@
 
 		$("#vahvistaPoisto").on("tap", function() {
 			poistettava.remove();
-			if ($("#nimiLista li").size() < 1) {
-				$("#tyhjennaLista").prop("disabled", true);
+			if ($("#duckList li").size() < 1) {
+				$("#emptyList").prop("disabled", true);
 			}
 			$("#popup_vahvistus").popup("close");
 		});
@@ -221,6 +345,11 @@
 			}
 			return d + "." + m + "." + y;
  		}
+	/*	var locations = [
+        {lat: 60.07, lng: 25},
+        {lat: 60.65, lng: 24.9},
+        {lat: 60.50, lng: 25.8}       
+		]; */
 	
 	</script>
 </body>
