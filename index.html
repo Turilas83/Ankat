@@ -9,7 +9,7 @@
 	<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self' 'unsafe-inline'  
 https://mts.googleapis.com https://maps.googleapis.com 
-https://maps.gstatic.com ws://10.35.15.254:3000/ http://code.jquery.com 
+https://maps.gstatic.com ws://10.3.101.30:3000/ http://code.jquery.com 
 https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
 	" />
 	
@@ -25,22 +25,22 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		<div data-role="header" id="head">
 			<h1>Kirjautuminen</h1>
 		</div>
-
 		<div data-role="main" class="ui-content ui-body-a">
+		<form id="loginForm">
 		<div class="paiva"></div>
 			<p>
 			<label for="name">Nimi:</label>
-			<input type="text" name="username" id="username">
+			<input type="text" name="name" id="username">
 			</p>
 			<p>
-
 			<label for="pwd">Salasana:</label>
-
 			<input type="password" name="pwd" id="pwd">
 			</p>
 			<p>
-			<button class="ui-btn ui-btn-inline ui-corner-all" id="login">Kirjaudu</button>
+			
+			<input type="button" id="login" value="kirjaudu">
 			</p>
+			</form>
 		</div>
 
 		<div data-role="footer" id="loginFooter">
@@ -52,10 +52,11 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 	<div data-role="page" id="addDuck">
 		<div data-role="header" id="addDuckHead">
 			<h1>Havainto</h1>
+			<h1 id="loggedIn"></h1>
 		</div>
 		
 		<div data-role="main" class="ui-content ui-body-a">
-			
+	  <form id="lisaaLomake">
       <p>
         <label for="species">Ankkalaji:</label>
 		    <input type="text" name="species" id="species">
@@ -83,6 +84,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			<button class="ui-btn ui-btn-inline ui-corner-all" id="emptyList" disabled>Tyhjennä lista</button>
 		</p>
 		<hr>
+		</form>	
 		<p>
 			<ul data-role="listview" id="duckList" data-inset="true"></ul>
 		</p>
@@ -103,8 +105,19 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		<div data-role="header">
 			<h1>Bongaamasi ankat!</h1>
 		</div>
-		<div data-role="main" class="ui-content ui-body-a">
-			<p></p>
+		<table data-role="main" id="tiedotTaulu" class="ui-content ui-body-a">
+		<thead>
+				<tr>
+					<th>Ankkalaji:</th>
+					<th>Kuvaus:</th>
+					<th>Päiväys:</th>	
+					<th>Määrä:</th>	
+					<th>Sijainti:</th>					
+				</tr>
+		</thead>
+					<tbody>					
+					</tbody>
+				</table>
 		</div>
 		<div data-role="footer">
 			<h1>Ankkasovellus</h1>
@@ -158,13 +171,58 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			deviceNotReady.resolve();	//jarru_1=False				
 		}	
 		
-			$(document).on("pagecontainershow", function( event, ui ) {	//Mikä tahansa sivu näytetään.
+		$(document).on("pagecontainershow", function( event, ui ) {	//Mikä tahansa sivu näytetään.
 			var toPage = ui.toPage[0].id; //Mikä sivu on näytetty, palauttaa sivun id:n
 			if(toPage=="addDuck"){			
 				pageNotReady.resolve(); //jarru_2=False
+				if(sessionStorage.name==undefined){
+				document.location="#loginPage";
+				}
+				$("#loggedIn").html("Kirjautuneena " + sessionStorage.name);	
+			}else if(toPage=="duckList"){
+				$("#paivays").val(haePaiva());
+				haeTiedot();
 			}	
 		});
 		
+		function haeTiedot(){
+			$("#tiedotTaulu tbody").html("");
+			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/select.php", function(result){
+				$.each(result, function(i, field) {
+				$("#tiedotTaulu tbody").append("<tr><td>"
+				+field.Nimi
+				+"</td><td>"	
+				+field.Tulos
+				+"</td><td>"
+				+field.Paivays
+				+"</td></tr>");		
+				});
+			});
+		}
+		$("#login").on("tap", function() {		
+			if($("#username").val().length>0&&$("#pwd").val().length>0){			
+				$.ajax({
+					type: 'POST',
+					data: $("#loginForm").serialize(),
+					url: 'http://proto387.haaga-helia.fi/~a1602812/backend/selectLogin.php',
+					success: function(data){	
+						console.log("1"+data);
+						var values = JSON.parse(data);	
+						if(values.length>0){
+							console.log(values[0].name);
+							sessionStorage.name=values[0].name;							
+							document.location="#addDuck";
+						}else{
+							console.log("Käyttäjää ei tunnisteta.")
+							document.location="#loginPage";
+						}						
+					},
+					error: function(){	
+						console.log(2);											
+					}
+				});
+			}
+		});
 		function pageReady() {
 		
 			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
@@ -186,7 +244,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				position: place,
 				map: mapMap,
 				title: "Olet tässä"
-			})				
+			})			
 		}
 
 		$("#add").on("tap", function() {
@@ -206,15 +264,34 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 
 			}
 		});
-		$("#login").on("tap", function() {
-			var username = $("#username").val();
-			var pwd = $ ("#pwd").val();
-			if(username == "Mikko" && pwd == "okkim") {
-				window.location.href = "#addDuck";
-			} else {
-				alert("Tunnus tai salasana väärä!").css("color", "red");
-			}
-		});
+
+		$.ajax({
+					type: 'POST',
+					data: $("#loginForm").serialize(),
+					url: 'http://proto387.haaga-helia.fi/~a1602812/backend/locations.html',
+					success: function(data){
+						var locations=[];
+						var places = JSON.parse(data);						
+						for(var i=0;i<places.length;i++){
+							var place={
+							"lat" : parseFloat(places[i].lat),
+							"lng" : parseFloat(places[i].lng)
+							};							
+							locations.push(place);
+						}	
+						var markers = locations.map(function(location, i) {
+						return new google.maps.Marker({
+							position: location,
+							map: mapMap,
+							title: "paikka_"+i,	
+							//label: laskeEtaisyys(new google.maps.LatLng(location)) + " km"
+						});				
+						});	
+					},
+					error: function(){	
+						console.log(2);											
+					}
+		});				
 
 		$("#emptyList").on("tap", function() {
 			$("#duckList").empty();
