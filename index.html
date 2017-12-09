@@ -8,16 +8,17 @@
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
 	<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self' 'unsafe-inline'  
+			ws://192.168.8.106:3000/
 https://mts.googleapis.com https://maps.googleapis.com 
-https://maps.gstatic.com ws://10.3.101.30:3000/ http://code.jquery.com 
+https://maps.gstatic.com  http://code.jquery.com 
 https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
 	" />
 	
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 	<script src="https://code.jquery.com/jquery-2.1.4.js" integrity="sha256-siFczlgw4jULnUICcdm9gjQPZkw/YPDqhQ9+nAOScE4="	crossorigin="anonymous"></script>
 	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-   <link rel="stylesheet" type="text/css" href="css/index.css">
-	<title>Ankkasovellus</title>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+	<title>Sorsasovellus</title>
 </head>
 <body>
 
@@ -27,7 +28,6 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		</div>
 		<div data-role="main" class="ui-content ui-body-a">
 		<form id="loginForm">
-		<div class="paiva"></div>
 			<p>
 			<label for="name">Nimi:</label>
 			<input type="text" name="name" id="username">
@@ -37,15 +37,12 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			<input type="password" name="pwd" id="pwd">
 			</p>
 			<p>
-			
 			<input type="button" id="login" value="kirjaudu">
 			</p>
 			</form>
 		</div>
-
 		<div data-role="footer" id="loginFooter">
-			<h1>Ankkasovellus</h1>
-			
+			<h1>Sorsasovellus</h1>
 		</div>
 	</div>
 
@@ -54,21 +51,20 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			<h1>Havainto</h1>
 			<h1 id="loggedIn"></h1>
 		</div>
-		
 		<div data-role="main" class="ui-content ui-body-a">
-	  <form id="lisaaLomake">
-      <p>
-        <label for="species">Ankkalaji:</label>
-		    <input type="text" name="species" id="species">
-			
+		<form id="lisaaLomake">
+	  <p>
+		<label for="species">Sorsalaji:</label>
+		    <input type="text" name="species" id="species"/>
       </p>
+	
       <p>
         <label for="description">Kuvaus:</label>
 			<input type="text" name="description" id="description">
       </p>
       <p>
-			<label for="date">Päivä:<div class="paiva"></div></label>
-			
+			<label for="day">Päivä:</label>
+			<input type="text" name="day" id="day">	
       </p>
       <p>
         <label for="count">Määrä:</label>
@@ -78,14 +74,14 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
         <label for="location">Sijainti:</label>
 			<div id="mapLocation" style="height:300px"></div> 
       </p>
-		<hr>
+	
 		<p>
-			<button class="ui-btn ui-btn-inline ui-corner-all" id="add">Lisää ankka havainto listaan</button>
-			<button class="ui-btn ui-btn-inline ui-corner-all" id="emptyList" disabled>Tyhjennä lista</button>
+			<input type="button" id="add" value="Lisää sorsa havainto listaan">
+			<input type="button" id="showDucks" value="Näytä havainnot">
 		</p>
-		<hr>
+	
 		</form>	
-		<p>
+		<!--<p>
 			<ul data-role="listview" id="duckList" data-inset="true"></ul>
 		</p>
    		</div>
@@ -94,21 +90,21 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				<h3 id="poistoTxt"></h3>
 				<a class="ui-btn ui-corner-all" data-rel="back">Peruuta</a>
 				<a class="ui-btn ui-corner-all" id="vahvistaPoisto" >Vahvista</a>
-			</div>
-		</div>
+			</div>-->
+		</div> 
 		<div data-role="footer" id="addDuckFooter">
-			<h1>Ankkasovellus</h1>
+			<h1>Sorsasovellus</h1>
 		</div>
 	</div>
 
-	<div data-role="page" id="duckList">
+	<div data-role="page" id="allDucks">
 		<div data-role="header">
-			<h1>Bongaamasi ankat!</h1>
+			<h1>Bongaamasi sorsat!</h1>
 		</div>
 		<table data-role="main" id="tiedotTaulu" class="ui-content ui-body-a">
 		<thead>
 				<tr>
-					<th>Ankkalaji:</th>
+					<th>Sorsalaji:</th>
 					<th>Kuvaus:</th>
 					<th>Päiväys:</th>	
 					<th>Määrä:</th>	
@@ -117,46 +113,19 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		</thead>
 					<tbody>					
 					</tbody>
-				</table>
+		</table>
+		<p>
+			<input type="button" id="back" value="Takaisin lisäykseen">
+		</p>
+		<div data-role="footer" id="addDuckFooter">
+			<h1>Sorsasovellus</h1>
 		</div>
-		<div data-role="footer">
-			<h1>Ankkasovellus</h1>
-		</div>
-	</div>
+		
+	</div> 
 	<script type="text/javascript" src="cordova.js"></script> <!-- mahdollistaa laitteen ominaisuuksien käytön -->	
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnWUWYNgyyqDFtJdry3A2R_fpoTt1eT7Y"></script>
 	<script>
 	
-		
-		$(document).one("pagebeforecreate", function () { //Ennen minkä tahansa sivun luomista, tehdään kerran (.one)
-				$(".paiva").text(haePaiva());
-
-		});
-		
-		$(document).on("pagecreate", "#loginPage", function() { 	//Sivun luonti, tehdään kerran
-					$(".paiva").text(haePaiva());
-					
-		});
-
-		$(document).on("pagecreate", "#addDuck", function() {		//Sivun luonti, tehdään kerran
-				$(".paiva").text(haePaiva());
-					
-		});
-		
-		$(document).on("pagecreate", "#duckList", function() { 	//Sivun luonti, tehdään kerran
-
-		});
-
-		$(document).on("pagecontainerbeforeshow", function( event, ui ) {	//Ennen minkä tahansa sivun näyttämistä. (pagebeforeshow is deprecated)
-			var toPage = ui.toPage[0].id; //Mille sivulle ollaan menossa, palauttaa sivun id:n
-			
-			if(toPage=="loginPage"){
-				$(".paiva");
-						
-			}else if(toPage=="addDuck"){
-				$(".paiva");			
-			}
-		});
 			
 			//Laitetaan kaksi jarrua päälle. 
 		var deviceNotReady = $.Deferred(); //jarru_1=True
@@ -178,32 +147,63 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				if(sessionStorage.name==undefined){
 				document.location="#loginPage";
 				}
-				$("#loggedIn").html("Kirjautuneena " + sessionStorage.name);	
-			}else if(toPage=="duckList"){
-				$("#paiva").val(haePaiva());
+				$("#day").val(haePaiva());
+				$("#loggedIn").html("Kirjautuneena <br>" + sessionStorage.name);	
+			} else if(toPage=="allDucks"){
+				pageNotReady.resolve();
+				if(sessionStorage.name==undefined){
+				document.location="#loginPage";
+				}
 				haeTiedot();
+				
 			}	
 		});
 		
 		function haeTiedot(){
 			$("#tiedotTaulu tbody").html("");
-			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/select.php", function(result){
+			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/selectDucks.php", function(result){
 				$.each(result, function(i, field) {
 				$("#tiedotTaulu tbody").append
 				("<tr><td>"
-				+field.Species
+				+field.species
 				+"</td><td>"	
-				+field.Description
+				+field.description
 				+"</td><td>"
-				+field.Paiva
+				+field.dateTime
 				+"</td><td>"
-				+field.Count
+				+field.count
 				+"</td><td>"
-				+field.Location
+				+field.location
 				+"</td></tr>");		
 				});
 			});
+		} 
+		
+		function pageReady() {
+		
+			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
+			function onLocationSuccess(position) {						
+				makeMap(position.coords.latitude, position.coords.longitude);					
+			}
+			function onLocationError() {				
+				console.log("Paikannus ei onnistu");
+			}
 		}
+		
+		function makeMap(lat, lon) {				
+			var place = new google.maps.LatLng(lat, lon);			
+			var myOptions = {
+				zoom:15,
+				center: place
+			};
+			var mapMap = new google.maps.Map(document.getElementById("mapLocation"), myOptions);	//tai $("#mapLocation")[0], myOptions	
+			var marker = new google.maps.Marker({
+				position: place,
+				map: mapMap,
+				title: "Olet tässä"
+			})			
+		}
+		
 		$("#login").on("tap", function() {		
 			if($("#username").val().length>0&&$("#pwd").val().length>0){			
 				$.ajax({
@@ -227,30 +227,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					}
 				});
 			}
-		});
-		function pageReady() {
-		
-			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
-			function onLocationSuccess(position) {						
-				makeMap(position.coords.latitude, position.coords.longitude);					
-			}
-			function onLocationError() {				
-				console.log("Paikannus ei onnistu");
-			}
-		}
-		function makeMap(lat, lon) {				
-			var place = new google.maps.LatLng(lat, lon);			
-			var myOptions = {
-				zoom:15,
-				center: place
-			};
-			var mapMap = new google.maps.Map(document.getElementById("mapLocation"), myOptions);	//tai $("#mapLocation")[0], myOptions	
-			var marker = new google.maps.Marker({
-				position: place,
-				map: mapMap,
-				title: "Olet tässä"
-			})			
-		}
+		}); 
 
 		$("#add").on("tap", function() {
 			console.log($("#species").val + " " +$("#description").val());
@@ -258,7 +235,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					$.ajax({
 							type: 'POST',
 							data: $("#lisaaLomake").serialize(),
-							url: 'http://proto387.haaga-helia.fi/~a1602812/backend/addduck.php',
+							url: 'http://proto387.haaga-helia.fi/~a1602812/backend/addDuck.php',
 							success: function(data){
 								haeTiedot();
 			document.getElementById("lisaaLomake").reset();
@@ -270,24 +247,35 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					});
 			}
 		});
+		
+		$("#showDucks").on("tap", function() {
+			document.location="#allDucks";
+			//$("#emptyList").prop("disabled", true);
+		});
+		
+		$("#back").on("tap", function() {
+			document.location="#addDuck";
+		});
+		/*$("#add").on("tap", function() {
 			var species = $("#species").val();
 			var description = $("#description").val();
-			var paiva = $(".paiva");
+			var date = $("#day").val(haePaiva());
 			var count = $("#count").val();
 			if(species!=""){
-				$("#duckList").append("<li class='delete' data-icon='delete'><a href='#'>" + species + ", " + description + ", " + paiva + ", " + count +" </a></li>");
+				$("#duckList").append("<li class='delete' data-icon='delete'><a href='#'>" + species + ", " + description + ", " + day + ", " + count +" </a></li>");
 				$("#duckList").listview("refresh");
 				$("#species").val("");
 				$("#description").val("");
-				$(".paiva");
+				$("#day").val(haePaiva());
 				$("#count").val("");
 				//$("#tyhjennaLista").attr("disabled", false);  //tai
 				$("#emptyList").prop("disabled", false);
 
 			}
 		});
+	 */
 
-		$.ajax({
+		/*$.ajax({
 					type: 'POST',
 					data: $("#loginForm").serialize(),
 					url: 'http://proto387.haaga-helia.fi/~a1602812/backend/locations.html',
@@ -313,14 +301,11 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					error: function(){	
 						console.log(2);											
 					}
-		});				
+		});	*/			
 
-		$("#emptyList").on("tap", function() {
-			$("#duckList").empty();
-			$("#emptyList").prop("disabled", true);
-		});
+		
 
-		var poistettava;
+		/*var poistettava;
 		$(document).on("tap", ".delete", function(event) {
 			poistettava = $(this);	//Palauttaa tapahtuman käynnistäneen objektin
 			//Objektin ominaisuuksien ja arvojen läpikäynti (ei tarvita tässä tapauksessa, vain esimerkkinä)
@@ -341,7 +326,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				$("#emptyList").prop("disabled", true);
 			}
 			$("#popup_vahvistus").popup("close");
-		});
+		}); */ 
 
 		function haePaiva(){
 			var dVal = new Date();
