@@ -62,8 +62,8 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		<input type="text" name="description" id="description">
       </p>
       <p>
-		<label for="dateTime">Päivä:</label>
-		<input type="text" name="dateTime" id="dateTime">	
+		<label for="date">Päivä:</label>
+		<input type="text" name="date" id="date">	
       </p>
       <p>
         <label for="count">Määrä:</label>
@@ -144,10 +144,10 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				if(sessionStorage.name==undefined){
 				document.location="#loginPage";
 				}
-				$("#dateTime").val(haePaiva());
+				$("#date").val(haePaiva());
 				$("#loggedIn").html("Kirjautuneena <br>" + sessionStorage.name);	
 			} else if(toPage=="allDucks"){
-				//pageNotReady.resolve();
+				pageNotReady.resolve();
 				if(sessionStorage.name==undefined){
 				document.location="#loginPage";
 				}
@@ -166,7 +166,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				+"</td><td>"	
 				+field.description
 				+"</td><td>"
-				+field.dateTime
+				+field.date
 				+"</td><td>"
 				+field.count
 				//+"</td><td>"
@@ -256,7 +256,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		
 		$("#showDucks").on("tap", function() {
 			document.location="#allDucks";
-			//$("#emptyList").prop("disabled", true);
+			//haeTiedot();//$("#emptyList").prop("disabled", true);
 		});
 		
 		$("#back").on("tap", function() {
