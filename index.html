@@ -8,7 +8,7 @@
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
 	<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self' 'unsafe-inline' http://proto387.haaga-helia.fi/ 
-			ws://10.213.228.99:3000/
+			ws://10.3.124.243:3000/
 https://mts.googleapis.com https://maps.googleapis.com 
 https://maps.gstatic.com  http://code.jquery.com 
 https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
@@ -71,23 +71,15 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
       </p>
       <p>
         <label for="location">Sijainti:</label>
-		<div id="mapLocation" style="height:300px"></div> 
+		<div id="mapLocation" style="height:300px"></div> 		
       </p>
 	  <p>
-		<input type="button" id="add" class="ui-button" value="Lisää havainto">
+	 	<input type="button" id="add" class="ui-button" value="Lisää havainto">
 		<input type="button" id="showDucks" class="ui-button" value="Näytä havainnot">
 	  </p>
+		<input type="hidden" id="lat" name="lat">
+		<input type="hidden" id="lon" name="lon">
 	</form>	
-		<!--<p>
-			<ul data-role="listview" id="duckList" data-inset="true"></ul>
-		</p>
-   		</div>
-		<div data-role="popup" id="popup_vahvistus">
-			<div data-role="content">
-				<h3 id="poistoTxt"></h3>
-				<a class="ui-btn ui-corner-all" data-rel="back">Peruuta</a>
-				<a class="ui-btn ui-corner-all" id="vahvistaPoisto" >Vahvista</a>
-			</div>-->
 	</div> 
 		<div data-role="footer" id="addDuckFooter">
 			<h1>Sorsasovellus</h1>
@@ -105,13 +97,15 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					<th>Kuvaus:</th>
 					<th>Päiväys:</th>	
 					<th>Määrä:</th>	
-					<!--<th>Sijainti:</th>		-->			
+					<th>Sijainti:</th>		
 				</tr>
 		</thead>
-					<tbody>					
+					<tbody>	
 					</tbody>
+					
 		</table>
 		<p>
+			<!--<input type="button" id="locationMarkers" class="ui-button" value="Näytä kartalla">-->
 			<input type="button" id="back" class="ui-button" value="Takaisin">
 		</p>
 		<div data-role="footer" id="duckListFooter">
@@ -145,6 +139,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				document.location="#loginPage";
 				}
 				$("#date").val(haePaiva());
+				
 				$("#loggedIn").html("Kirjautuneena <br>" + sessionStorage.name);	
 			} else if(toPage=="allDucks"){
 				pageNotReady.resolve();
@@ -160,18 +155,19 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			$("#tiedotTaulu tbody").html("");
 			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/haeSorsat.php", function(result){
 				$.each(result, function(i, field) {
-				$("#tiedotTaulu tbody").append
-				("<tr><td>"
-				+field.species
-				+"</td><td>"	
-				+field.description
-				+"</td><td>"
-				+field.date
-				+"</td><td>"
-				+field.count
-				//+"</td><td>"
-				//+field.location
-				+"</td></tr>");		
+				$("#tiedotTaulu tbody").append("<tr><td>"
+					+field.Species
+					+"</td><td>"	
+					+field.Description
+					+"</td><td>"
+					+field.Date
+					+"</td><td>"
+					+field.Count
+					+"</td><td>"
+					+field.Lat
+					+"</td><td>"
+					+field.Lon
+					+"</td></tr>");		
 				});
 			});
 		} 
@@ -179,7 +175,9 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		function pageReady() {
 		
 			navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, { timeout: 20000 });
-			function onLocationSuccess(position) {						
+			function onLocationSuccess(position) {	
+				$("#lat").val(position.coords.latitude);
+				$("#lon").val(position.coords.longitude);			
 				makeMap(position.coords.latitude, position.coords.longitude);					
 			}
 			function onLocationError() {				
@@ -188,6 +186,8 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		}
 		
 		function makeMap(lat, lon) {				
+			//var lat = "";
+			//var lon = "";
 			var place = new google.maps.LatLng(lat, lon);			
 			var myOptions = {
 				zoom:15,
@@ -198,7 +198,8 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				position: place,
 				map: mapMap,
 				title: "Olet tässä"
-			})			
+			})	
+				return lat, lon;
 		}
 		
 		$("#login").on("tap", function() {		
@@ -232,8 +233,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		$("#add").on("tap", function() {
 			//console.log($("#species").val + " " +$("#description").val());
 			
-			if($("#species").val().length>0&&$("#description").val().length>0){
-			
+			if($("#species").val().length>0&&$("#description").val().length>0){			
 					$.ajax({
 							type: 'POST',
 							data: $("#lisaaLomake").serialize(),
@@ -262,25 +262,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		$("#back").on("tap", function() {
 			document.location="#addDuck";
 		});
-		/*$("#add").on("tap", function() {
-			var species = $("#species").val();
-			var description = $("#description").val();
-			var date = $("#day").val(haePaiva());
-			var count = $("#count").val();
-			if(species!=""){
-				$("#duckList").append("<li class='delete' data-icon='delete'><a href='#'>" + species + ", " + description + ", " + day + ", " + count +" </a></li>");
-				$("#duckList").listview("refresh");
-				$("#species").val("");
-				$("#description").val("");
-				$("#day").val(haePaiva());
-				$("#count").val("");
-				//$("#tyhjennaLista").attr("disabled", false);  //tai
-				$("#emptyList").prop("disabled", false);
-
-			}
-		});
-	 */
-
+		
 		/*$.ajax({
 					type: 'POST',
 					data: $("#loginForm").serialize(),
@@ -308,31 +290,6 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 						console.log(2);											
 					}
 		});	*/			
-
-		
-
-		/*var poistettava;
-		$(document).on("tap", ".delete", function(event) {
-			poistettava = $(this);	//Palauttaa tapahtuman käynnistäneen objektin
-			//Objektin ominaisuuksien ja arvojen läpikäynti (ei tarvita tässä tapauksessa, vain esimerkkinä)
-
-			var obj = $(this);  //.context -pääsee sisälle objektin arvoihin
-			for(var key in obj) {
-				console.log('key: ' + key + '\n' + 'value: ' + obj[key]);
-			}
-
-			$("#poistoTxt").text("Vahvista poisto: " + poistettava.text().split(",")[0] + "?");
-			event.preventDefault(); //Chrome sulkee popupin heti (bugi?). Estetään seuraavan tapahtuman suorittaminen.
-			$("#popup_vahvistus").popup("open");
-		});
-
-		$("#vahvistaPoisto").on("tap", function() {
-			poistettava.remove();
-			if ($("#duckList li").size() < 1) {
-				$("#emptyList").prop("disabled", true);
-			}
-			$("#popup_vahvistus").popup("close");
-		}); */ 
 
 		function haePaiva(){
 			var dVal = new Date();
