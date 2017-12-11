@@ -8,7 +8,7 @@ if(!empty($_REQUEST["species"])){
 	$cou = $_REQUEST['count'];
 	$loc = $_REQUEST['location'];	
 	$db = new PDO('sqlite:ducks.sqlite');
-	$db->exec("INSERT INTO sightins(species, description, dateTime, count, location) VALUES('$spe','$des','$dat','$cou','$loc');");	
+	$db->exec("INSERT INTO sightings(species, description, dateTime, count, location) VALUES('$spe','$des','$dat','$cou','$loc');");	
 	$db=null;			
 }
 
