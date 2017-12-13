@@ -6,13 +6,15 @@
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="msapplication-tap-highlight" content="no" />
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-	<meta http-equiv="Content-Security-Policy" content="
+<!--	<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self' 'unsafe-inline' http://proto387.haaga-helia.fi/ 
-			ws://10.3.124.243:3000/
+			ws://10.213.105.238:3000
 https://mts.googleapis.com https://maps.googleapis.com 
 https://maps.gstatic.com  http://code.jquery.com 
 https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
 	" />
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; frame-src *;" />
 	
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 	<script src="https://code.jquery.com/jquery-2.1.4.js" integrity="sha256-siFczlgw4jULnUICcdm9gjQPZkw/YPDqhQ9+nAOScE4="	crossorigin="anonymous"></script>
@@ -46,6 +48,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		</div>
 	</div>
 
+	
 	<div data-role="page" id="addDuck">
 		<div data-role="header" id="addDuckHead">
 			<h1>Havainto</h1>
@@ -54,8 +57,20 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 	<div data-role="main" class="ui-content ui-body-a">
 	<form id="lisaaLomake">
 	  <p>
-		<label for="species">Sorsalaji:</label>
-		<input type="text" name="species" id="species">
+		<!--<label for="species">Sorsalaji:</label>
+		<input type="text" name="species" id="species">-->
+
+	<div class="ui-field-contain">
+    <label for="species">Sorsalaji:</label>
+    <select name="species" id="species" data-mini="true">
+        <option value="Sinisorsa">Sinisorsa</option>
+        <option value="Amerikanpunasotka">Amerikanpunasotka</option>
+        <option value="Harmaasorsa">Harmaasorsa</option>
+        <option value="Isopunasotka">Isopunasotka</option>
+		<option value="Pikkulapasotka">Pikkulapasotka</option>
+    </select>
+	</div>
+
       </p>	
       <p>
         <label for="description">Kuvaus:</label>
@@ -90,28 +105,25 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		<div data-role="header" id="duckListHeader">
 			<h1>Bongatut sorsat!</h1>
 		</div>
-		<table data-role="main" id="tiedotTaulu" class="ui-content ui-body-a">
-		<thead>
-				<tr>
-					<th>Sorsalaji:</th>
-					<th>Kuvaus:</th>
-					<th>Päiväys:</th>	
-					<th>Määrä:</th>	
-					<th>Sijainti:</th>		
-				</tr>
-		</thead>
-					<tbody>	
-					</tbody>
-					
-		</table>
+		<div data-role="main" class="ui-content ui-body-a">
 		<p>
-			<!--<input type="button" id="locationMarkers" class="ui-button" value="Näytä kartalla">-->
+			<ul data-role="listview" id="tiedotTaulu" data-inset="true"></ul>
+			<li data-role="list-divider"></li>
+		</p>
+		<p>
 			<input type="button" id="back" class="ui-button" value="Takaisin">
 		</p>
+		</div>
+		<div data-role="popup" id="havaintoMap">
+			<div data-role="content">
+				<h3 id="havaintoTxt"></h3>
+					<div id="mapPopup"></div>
+				<a class="ui-btn ui-corner-all" data-rel="back">Sulje</a>
+			</div>
+		</div>		
 		<div data-role="footer" id="duckListFooter">
 			<h1>Sorsasovellus</h1>
 		</div>
-		
 	</div> 
 	<script type="text/javascript" src="cordova.js"></script> <!-- mahdollistaa laitteen ominaisuuksien käytön -->	
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnWUWYNgyyqDFtJdry3A2R_fpoTt1eT7Y"></script>	
@@ -150,27 +162,50 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				
 			}	
 		});
+		var havainto;
+		$(document).on("tap", ".havainto", function(event) {
+			havainto = $(this);					
+			$("#havaintoTxt").val("moi");
+			event.preventDefault(); //Chrome sulkee popupin heti (bugi?). Estetään seuraavan tapahtuman suorittaminen.
+			$("#havaintoMap").popup("open");
+			document.querySelector('#havaintoMap').classList.add("open");
+			var split = this.name.split(",");
+			makeMap(split[0], split[1], "mapPopup");
+		});
+
+		$(document).on("tap", ".delete", function(event) {
+			console.log(this.Id);
+		});
 		
-		function haeTiedot(){
-			$("#tiedotTaulu tbody").html("");
+		function haeTiedot() {
+			$("#tiedotTaulu").html("");
+			
 			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/haeSorsat.php", function(result){
-				$.each(result, function(i, field) {
-				$("#tiedotTaulu tbody").append("<tr><td>"
-					+field.Species
-					+"</td><td>"	
-					+field.Description
-					+"</td><td>"
-					+field.Date
-					+"</td><td>"
-					+field.Count
-					+"</td><td>"
-					+field.Lat
-					+"</td><td>"
-					+field.Lon
-					+"</td></tr>");		
-				});
-			});
-		} 
+				var pvm = [];
+				var hav = [];	
+				for(var r = 0; r < result.length; r++) {
+					
+					if (pvm.indexOf(result[r].Date) == -1) {
+					$("#tiedotTaulu").append("<li divider>" + result[r].Date + "</a></li>");
+					pvm.push(result[r].Date);
+					}
+				
+					var lastdate = result[r].Date;
+
+					for(var n = 0; n < result.length; n++) {
+						if (lastdate == result[n].Date && hav.indexOf(result[n]) == -1) {
+							var position = result[n].Lat + "," + result[n].Lon;
+							$("#tiedotTaulu").append("<li data-icon='location'><a href='#' name='" + position +"' class='havainto'>" + (n+1) + ". " + result[n].Species + ", " + result[n].Description + ", " + result[n].Date + ", " + result[n].Count+"</a></li>"); 
+							hav.push(result[n]);
+						}					
+
+					}					
+				}	
+
+				$("#tiedotTaulu").listview("refresh");
+				
+			}); 
+		}
 		
 		function pageReady() {
 		
@@ -178,22 +213,20 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 			function onLocationSuccess(position) {	
 				$("#lat").val(position.coords.latitude);
 				$("#lon").val(position.coords.longitude);			
-				makeMap(position.coords.latitude, position.coords.longitude);					
+				makeMap(position.coords.latitude, position.coords.longitude, "mapLocation");					
 			}
 			function onLocationError() {				
 				console.log("Paikannus ei onnistu");
 			}
 		}
 		
-		function makeMap(lat, lon) {				
-			//var lat = "";
-			//var lon = "";
+		function makeMap(lat, lon, mapdiv) {				
 			var place = new google.maps.LatLng(lat, lon);			
-			var myOptions = {
+			var mydiff_dates = {
 				zoom:15,
 				center: place
 			};
-			var mapMap = new google.maps.Map(document.getElementById("mapLocation"), myOptions);	//tai $("#mapLocation")[0], myOptions	
+			var mapMap = new google.maps.Map(document.getElementById(mapdiv), mydiff_dates);	//tai $("#mapLocation")[0], mydiff_dates	
 			var marker = new google.maps.Marker({
 				position: place,
 				map: mapMap,
@@ -229,9 +262,9 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				alert("Kentät eivät voi olla tyhjiä")
 			}
 		}); 
-
+	
+		
 		$("#add").on("tap", function() {
-			//console.log($("#species").val + " " +$("#description").val());
 			
 			if($("#species").val().length>0&&$("#description").val().length>0){			
 					$.ajax({
@@ -256,40 +289,11 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		
 		$("#showDucks").on("tap", function() {
 			document.location="#allDucks";
-			//haeTiedot();//$("#emptyList").prop("disabled", true);
 		});
 		
 		$("#back").on("tap", function() {
 			document.location="#addDuck";
 		});
-		
-		/*$.ajax({
-					type: 'POST',
-					data: $("#loginForm").serialize(),
-					url: 'http://proto387.haaga-helia.fi/~a1602812/backend/locations.html',
-					success: function(data){
-						var locations=[];
-						var places = JSON.parse(data);						
-						for(var i=0;i<places.length;i++){
-							var place={
-							"lat" : parseFloat(places[i].lat),
-							"lng" : parseFloat(places[i].lng)
-							};							
-							locations.push(place);
-						}	
-						var markers = locations.map(function(location, i) {
-						return new google.maps.Marker({
-							position: location,
-							map: mapMap,
-							title: "paikka_"+i,	
-							//label: laskeEtaisyys(new google.maps.LatLng(location)) + " km"
-						});				
-						});	
-					},
-					error: function(){	
-						console.log(2);											
-					}
-		});	*/			
 
 		function haePaiva(){
 			var dVal = new Date();
