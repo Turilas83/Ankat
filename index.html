@@ -180,7 +180,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 		function haeTiedot() {
 			$("#tiedotTaulu").html("");
 			
-			$.getJSON("http://proto387.haaga-helia.fi/~a1602812/backend/haeSorsat.php", function(result){
+			$.getJSON("http://haeSorsat.php", function(result){
 				var pvm = [];
 				var hav = [];	
 				for(var r = 0; r < result.length; r++) {
@@ -240,7 +240,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 				$.ajax({
 					type: 'POST',
 					data: $("#loginForm").serialize(),
-					url: 'http://proto387.haaga-helia.fi/~a1602812/backend/selectLogin.php',
+					url: 'http://selectLogin.php',
 					success: function(data){	
 						console.log("1"+data);
 						var values = JSON.parse(data);	
@@ -270,7 +270,7 @@ https://code.jquery.com https://csi.gstatic.com  https://ssl.gstatic.com gap: da
 					$.ajax({
 							type: 'POST',
 							data: $("#lisaaLomake").serialize(),
-							url: 'http://proto387.haaga-helia.fi/~a1602812/backend/lisaaSorsa.php',
+							url: 'http://lisaaSorsa.php',
 							success: function(data){				
 								document.location="#allDucks";
 			document.getElementById("lisaaLomake").reset();
